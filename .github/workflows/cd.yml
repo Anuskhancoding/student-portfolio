@@ -17,10 +17,15 @@ jobs:
           path: ./artifact
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
+      - name: Clean deploy directory
+        run: |
+          echo "Cleaning deploy directory..."
+          rm -rf ./deployed
+          mkdir -p ./deployed
       - name: Unzip artifact
         run: |
           echo "Unzipping artifact..."
-          unzip ./artifact/portfolio-artifact.zip -d ./deployed
+          unzip -o ./artifact/portfolio-artifact.zip -d ./deployed
           ls -la ./deployed
       - name: Install dependencies
         working-directory: ./deployed
