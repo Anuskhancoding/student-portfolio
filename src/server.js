@@ -9,8 +9,10 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
-app.listen(port, () => {
+// Start the server and store the server instance
+const server = app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
 
-module.exports = app;
+// Export both app and server
+module.exports = { app, server };
