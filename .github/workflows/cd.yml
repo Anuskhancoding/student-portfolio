@@ -2,36 +2,34 @@
 name: CD Pipeline
 on:
   push:
-    branches: [main]
-  workflow_dispatch:
+    branches:
+      - main
 jobs:
   deploy:
     runs-on: self-hosted
-    needs: ci
+    needs: build
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
       - name: Download artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: portfolio-artifact
           path: ./artifact
       - name: Unzip artifact
-        run: unzip ./artifact/portfolio.zip -d ./deployed
+        run: unzip ./artifact/portfolio-artifact.zip -d ./deployed
       - name: Install dependencies
+        working-directory: ./deployed
         run: npm install
-        working-directory: ./deployed
       - name: Stop any existing server
-        run: pkill -f "node src/server.js" || true
         working-directory: ./deployed
+        run: pkill -f "node src/server.js" || true
       - name: Start application in background
-        run: nohup npm start &
         working-directory: ./deployed
         env:
           PORT: ${{ secrets.APP_PORT }}
+        run: nohup npm start &
       - name: Verify server is running
+        working-directory: ./deployed
         run: |
           sleep 5
           curl -f http://localhost:${{ secrets.APP_PORT }} || exit 1
-        working-directory: ./deployed
 ```
