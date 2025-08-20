@@ -50,8 +50,9 @@ jobs:
         env:
           PORT: 3000
         run: |
+          npm start
           echo "Starting application on port 3000..."
-          nohup node src/server.js </dev/null >/deployed/nohup.out 2>&1 &
+          # nohup node src/server.js </dev/null >/deployed/nohup.out 2>&1 &
           echo $! > server.pid
           sleep 5
           cat server.pid
