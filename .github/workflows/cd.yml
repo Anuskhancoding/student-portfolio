@@ -49,8 +49,11 @@ jobs:
           PORT: 3000
         run: |
           echo "Starting application on port 3000..."
-          nohup node src/server.js &
+          nohup node src/server.js </dev/null >/deployed/nohup.out 2>&1 &
           echo $! > server.pid
+          sleep 2
+          cat server.pid
+          echo "Server process started with PID: $(cat server.pid)"
         timeout-minutes: 1
       - name: Verify server is running
         working-directory: ./deployed
