@@ -1,4 +1,4 @@
-```yaml
+
 name: CD Pipeline
 on:
   workflow_run:
@@ -73,4 +73,4 @@ EOF"
           echo "Checking server at http://localhost:${{ secrets.APP_PORT || '3000' }}"
           curl -v -f http://localhost:${{ secrets.APP_PORT || '3000' }} || exit 1
           echo "Server is running successfully"
-```
+
