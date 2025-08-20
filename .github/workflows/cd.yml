@@ -19,10 +19,10 @@ jobs:
       - name: Unzip artifact
         run: |
           echo "Clearing deployed directory..."
-          rm -rf ./deployed
+          rm -rf /home/hp/Testing
           echo "Unzipping artifact..."
           unzip -o ./artifact/portfolio-artifact.zip -d /home/hp/Testing
-          ls -la ./deployed
+          ls -la /home/hp/Testing
       - name: Install dependencies
         working-directory: /home/hp/Testing
         run: |
