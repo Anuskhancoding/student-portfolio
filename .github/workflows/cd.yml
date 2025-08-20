@@ -33,13 +33,13 @@ jobs:
         run: |
           echo "Stopping existing server..."
           pkill -f "node src/server.js" || true
-          lsof -i :${{ secrets.APP_PORT }} || true
+          lsof -i :${{ secrets.APP_PORT || '3000' }} || true
       - name: Start application in background
         working-directory: ./deployed
         env:
-          PORT: ${{ secrets.APP_PORT }}
+          PORT: ${{ secrets.APP_PORT || '3000' }}
         run: |
-          echo "Starting application on port ${{ secrets.APP_PORT }}..."
+          echo "Starting application on port ${PORT}..."
           nohup npm start &
           echo $! > server.pid
         timeout-minutes: 1
@@ -48,6 +48,6 @@ jobs:
         run: |
           echo "Waiting for server to start..."
           sleep 15
-          echo "Checking server at http://localhost:${{ secrets.APP_PORT }}"
-          curl -v -f http://localhost:${{ secrets.APP_PORT }} || exit 1
+          echo "Checking server at http://localhost:${{ secrets.APP_PORT || '3000' }}"
+          curl -v -f http://localhost:${{ secrets.APP_PORT || '3000' }} || exit 1
           echo "Server is running successfully"
