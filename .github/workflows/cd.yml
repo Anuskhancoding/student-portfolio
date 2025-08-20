@@ -1,3 +1,4 @@
+
 name: CD Pipeline
 on:
   workflow_run:
@@ -32,6 +33,11 @@ jobs:
           echo "Stopping existing server..."
           pkill -f "node.*server.js" || true
           lsof -i :3000 || true
+      - name: Log runner IP address
+        run: |
+          echo "Runner IP address:"
+          hostname -I || echo "Could not determine IP address"
+          curl -s http://ifconfig.me || echo "Could not fetch public IP"
       - name: Start application in background
         working-directory: ./deployed
         env:
@@ -49,3 +55,4 @@ jobs:
           echo "Checking server at http://localhost:3000"
           curl -v -f http://localhost:3000 || exit 1
           echo "Server is running successfully"
+          echo "Access the website at http://$(hostname -I | awk '{print $1}'):3000 (if on the same network) or http://<runner-public-ip>:3000"
