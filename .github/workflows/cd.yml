@@ -15,26 +15,26 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: portfolio-artifact
-          path: ./artifact
+          path: /home/hp/student-portfolio-artifact
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
       - name: Unzip artifact
         run: |
           echo "Clearing deployed directory..."
-          rm -rf ~/student-portfolio-deployed
-          mkdir -p ~/student-portfolio-deployed
+          rm -rf /home/hp/student-portfolio-deployed
+          mkdir -p /home/hp/student-portfolio-deployed
           echo "Unzipping artifact..."
-          unzip -o ./artifact/portfolio-artifact.zip -d ~/student-portfolio-deployed
-          ls -la ~/student-portfolio-deployed
+          unzip -o /home/hp/student-portfolio-artifact/portfolio-artifact.zip -d /home/hp/student-portfolio-deployed
+          ls -la /home/hp/student-portfolio-deployed
       - name: Install dependencies
-        working-directory: ~/student-portfolio-deployed
+        working-directory: /home/hp/student-portfolio-deployed
         run: |
           echo "Installing dependencies..."
           npm install --production
           ls -la src
           ls -la public
       - name: Stop any existing server
-        working-directory: ~/student-portfolio-deployed
+        working-directory: /home/hp/student-portfolio-deployed
         run: |
           echo "Stopping existing server..."
           if [ -f server.pid ]; then
@@ -47,10 +47,10 @@ jobs:
           echo "Checking for processes on port ${{ secrets.APP_PORT || '3000' }}..."
           lsof -i :${{ secrets.APP_PORT || '3000' }} || true
       - name: Create and start systemd service
-        working-directory: ~/student-portfolio-deployed
+        working-directory: /home/hp/student-portfolio-deployed
         run: |
           echo "Creating systemd service file..."
-          sudo bash -c "printf '[Unit]\nDescription=Student Portfolio Express Server\nAfter=network.target\n\n[Service]\nExecStart=/usr/bin/node $(pwd)/src/server.js\nWorkingDirectory=$(pwd)\nRestart=always\nUser=hp\nEnvironment=PORT=${{ secrets.APP_PORT || '3000' }}\n\n[Install]\nWantedBy=multi-user.target\n' > /etc/systemd/system/portfolio.service"
+          sudo bash -c "printf '[Unit]\nDescription=Student Portfolio Express Server\nAfter=network.target\n\n[Service]\nExecStart=/usr/bin/node /home/hp/student-portfolio-deployed/src/server.js\nWorkingDirectory=/home/hp/student-portfolio-deployed\nRestart=always\nUser=hp\nEnvironment=PORT=${{ secrets.APP_PORT || '3000' }}\n\n[Install]\nWantedBy=multi-user.target\n' > /etc/systemd/system/portfolio.service"
           echo "Reloading systemd daemon..."
           sudo systemctl daemon-reload
           echo "Enabling service..."
@@ -61,7 +61,7 @@ jobs:
           sudo systemctl status portfolio.service --no-pager
         timeout-minutes: 1
       - name: Verify server is running
-        working-directory: ~/student-portfolio-deployed
+        working-directory: /home/hp/student-portfolio-deployed
         run: |
           echo "Waiting for server to start..."
           sleep 20
