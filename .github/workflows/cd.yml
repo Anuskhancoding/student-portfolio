@@ -1,4 +1,3 @@
-```yaml
 name: CD Pipeline
 on:
   workflow_run:
@@ -65,4 +64,3 @@ jobs:
           echo "Verifying server process persists..."
           ps -p $(cat server.pid) || exit 1
           echo "Server process is still alive after job"
-```
