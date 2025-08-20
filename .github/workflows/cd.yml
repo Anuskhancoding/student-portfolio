@@ -21,21 +21,21 @@ jobs:
           echo "Clearing deployed directory..."
           rm -rf ./deployed
           echo "Unzipping artifact..."
-          unzip -o ./artifact/portfolio-artifact.zip -d ./deployed
+          unzip -o ./artifact/portfolio-artifact.zip -d /home/hp/Testing
           ls -la ./deployed
       - name: Install dependencies
-        working-directory: ./deployed
+        working-directory: /home/hp/Testing
         run: |
           echo "Installing dependencies..."
           npm install
       - name: Stop any existing server
-        working-directory: ./deployed
+        working-directory: /home/hp/Testing
         run: |
           echo "Stopping existing server..."
           pkill -f "node src/server.js" || true
           lsof -i :${{ secrets.APP_PORT || '3000' }} || true
       - name: Start application in background
-        working-directory: ./deployed
+        working-directory: /home/hp/Testing
         env:
           PORT: ${{ secrets.APP_PORT || '3000' }}
         run: |
@@ -44,7 +44,7 @@ jobs:
           echo $! > server.pid
         timeout-minutes: 1
       - name: Verify server is running
-        working-directory: ./deployed
+        working-directory: /home/hp/Testing
         run: |
           echo "Waiting for server to start..."
           sleep 15
