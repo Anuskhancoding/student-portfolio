@@ -18,8 +18,10 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
       - name: Unzip artifact
         run: |
+          echo "Clearing deployed directory..."
+          rm -rf ./deployed
           echo "Unzipping artifact..."
-          unzip ./artifact/portfolio-artifact.zip -d ./deployed
+          unzip -o ./artifact/portfolio-artifact.zip -d ./deployed
           ls -la ./deployed
       - name: Install dependencies
         working-directory: ./deployed
