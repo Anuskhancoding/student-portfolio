@@ -1,18 +1,21 @@
 name: CD Pipeline
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["CI Pipeline"]
+    types:
+      - completed
 jobs:
   deploy:
     runs-on: self-hosted
-    needs: build
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: portfolio-artifact
           path: ./artifact
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
       - name: Unzip artifact
         run: unzip ./artifact/portfolio-artifact.zip -d ./deployed
       - name: Install dependencies
@@ -31,4 +34,3 @@ jobs:
         run: |
           sleep 5
           curl -f http://localhost:${{ secrets.APP_PORT }} || exit 1
-
