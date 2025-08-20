@@ -1,0 +1,37 @@
+name: CD Pipeline
+
+on:
+  workflow_run:
+    workflows: ["CI Pipeline"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    if: github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: portfolio-artifact
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Unzip artifact
+        run: unzip portfolio-artifact.zip -d ./deployed-app
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: ./deployed-app
+        run: npm install
+
+      - name: Start application
+        working-directory: ./deployed-app
+        env:
+          PORT: ${{ secrets.APP_PORT }}
+        run: nohup npm start &
