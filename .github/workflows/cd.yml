@@ -1,3 +1,4 @@
+```yaml
 name: CD Pipeline
 on:
   workflow_run:
@@ -42,7 +43,7 @@ jobs:
         working-directory: ./deployed
         run: |
           echo "Creating systemd service..."
-          sudo bash -c "cat > /etc/systemd/system/portfolio.service" << EOF
+          sudo bash -c "cat > /etc/systemd/system/portfolio.service << 'EOF'
 [Unit]
 Description=Student Portfolio Express Server
 After=network.target
@@ -56,7 +57,7 @@ Environment=PORT=${{ secrets.APP_PORT || '3000' }}
 
 [Install]
 WantedBy=multi-user.target
-EOF
+EOF"
           echo "Reloading and starting service..."
           sudo systemctl daemon-reload
           sudo systemctl enable portfolio.service
@@ -72,3 +73,4 @@ EOF
           echo "Checking server at http://localhost:${{ secrets.APP_PORT || '3000' }}"
           curl -v -f http://localhost:${{ secrets.APP_PORT || '3000' }} || exit 1
           echo "Server is running successfully"
+```
