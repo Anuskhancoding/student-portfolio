@@ -29,8 +29,12 @@ jobs:
         env:
           PORT: ${{ secrets.APP_PORT }}
         run: nohup npm start &
+        timeout-minutes: 1
       - name: Verify server is running
         working-directory: ./deployed
         run: |
-          sleep 5
+          echo "Waiting for server to start..."
+          sleep 10
+          echo "Checking server at http://localhost:${{ secrets.APP_PORT }}"
           curl -f http://localhost:${{ secrets.APP_PORT }} || exit 1
+          echo "Server is running successfully"
