@@ -1,3 +1,4 @@
+```yaml
 name: CD Pipeline
 on:
   workflow_run:
@@ -19,35 +20,40 @@ jobs:
       - name: Unzip artifact
         run: |
           echo "Clearing deployed directory..."
-          rm -rf /home/hp/Testing
+          rm -rf ./deployed
           echo "Unzipping artifact..."
-          unzip -o ./artifact/portfolio-artifact.zip -d /home/hp/Testing
-          ls -la /home/hp/Testing
+          unzip -o ./artifact/portfolio-artifact.zip -d ./deployed
+          ls -la ./deployed
       - name: Install dependencies
-        working-directory: /home/hp/Testing
+        working-directory: ./deployed
         run: |
           echo "Installing dependencies..."
           npm install
       - name: Stop any existing server
-        working-directory: /home/hp/Testing
+        working-directory: ./deployed
         run: |
           echo "Stopping existing server..."
-          pkill -f "node src/server.js" || true
+          if [ -f server.pid ]; then
+            kill $(cat server.pid) 2>/dev/null || true
+            rm -f server.pid
+          fi
           lsof -i :${{ secrets.APP_PORT || '3000' }} || true
       - name: Start application in background
-        working-directory: /home/hp/Testing
+        working-directory: ./deployed
         env:
           PORT: ${{ secrets.APP_PORT || '3000' }}
         run: |
           echo "Starting application on port ${PORT}..."
-          nohup npm start &
+          nohup node src/server.js > server.log 2>&1 &
           echo $! > server.pid
+          echo "Server PID: $(cat server.pid)"
         timeout-minutes: 1
       - name: Verify server is running
-        working-directory: /home/hp/Testing
+        working-directory: ./deployed
         run: |
           echo "Waiting for server to start..."
           sleep 15
           echo "Checking server at http://localhost:${{ secrets.APP_PORT || '3000' }}"
           curl -v -f http://localhost:${{ secrets.APP_PORT || '3000' }} || exit 1
           echo "Server is running successfully"
+```
